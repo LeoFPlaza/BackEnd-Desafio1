@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Wanton Wrap",
+    "description": "Beauty",
+    "code": "01HF2XA4130RA4YATTGR9004XX",
+    "price": 2918.66,
+    "thumbnail": "http://dummyimage.com/152x100.png/ff4444/ffffff",
+    "stock": 34763,
+    "id": 1
+  },
+  {
+    "title": "Nuevo nombre",
+    "description": "Nueva descripcion",
+    "code": "01HF2XA415JAVMGDWXTRY9HAB3",
+    "price": 1868.59,
+    "thumbnail": "http://dummyimage.com/100x100.png/5fa2dd/ffffff",
+    "stock": 86974,
+    "id": 2
+  },
+  {
+    "title": "Muffin Hinge 117n",
+    "description": "Shoes",
+    "code": "01HF2XA417YEFGQ2J81VCC8KC1",
+    "price": 2591.61,
+    "thumbnail": "http://dummyimage.com/151x100.png/dddddd/000000",
+    "stock": 9776,
+    "id": 3
+  },
+  {
+    "title": "Jugo de Naranja",
+    "description": "Drinks",
+    "code": "01HF2XA41R8MNY61P2XG46QA2Y",
+    "price": 297.16,
+    "thumbnail": "http://dummyimage.com/125x100.png/dddddd/000000",
+    "stock": 762,
+    "id": 4
+  },
+  {
+    "title": "Agua Mineral",
+    "description": "Drinks",
+    "code": "01HF2XA41R8MNY61P2XV46KA2Y",
+    "price": 197.16,
+    "thumbnail": "http://dummyimage.com/125x100.png/dddddd/000000",
+    "stock": 76278,
+    "id": 5
+  }
+]

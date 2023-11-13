@@ -58,7 +58,6 @@ class ProductManager {
     static lastCode = 0;
     static products = []
     constructor() {
-        this.products = ProductManager.products
     }
 
 
