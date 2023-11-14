@@ -1,125 +1,164 @@
-/*
- */
-
-// class Product {
-//     static lastCode = 0;
-//     constructor(title, description, price, thumbnail, stock) {
-//         this.title = title,
-//             this.description = description,
-//             this.price = price,
-//             this.thumbnail = thumbnail,
-//             this.code = this.setIdCode(),
-//             this.stock = stock
-//     }
-//     setIdCode() {
-//         let newCode = ++Product.lastCode;
-//         return newCode;
-//     }
-// }
-
-
-// class ProductManager {
-//     static products = []
-//     constructor(title, description, price, thumbnail, stock) {
-//         this.Product = new Product(title, description, price, thumbnail, stock),
-//             this.products = this.addProduct(this.Product)
-//     }
-
-
-
-//     getProducts() {
-//         return ProductManager.products;
-//     }
-
-//     addProduct(newProd) {
-//         ProductManager.products = [...ProductManager.products, newProd];
-//     }
-
-//     getProductById(id) {
-//         let productFound = "Not Found"
-//         ProductManager.products.forEach(element => {
-//             if (element.code == id) {
-//                 productFound = element
-//             }
-//         });
-//         return productFound
-//     }
-// }
-// // console.log(ProductManager.getProducts)
-// let producto1 = new ProductManager("Air Force 1", "Zapatillas Nike Azules de cuero", 121000, "thumbnail not available", 12)
-// let producto2 = new ProductManager("Puma Roma", "Zapatillas Puma blancas y negras de cuero", 70000, "thumbnail not available", 22)
-// let producto3 = new ProductManager("Adidas superstar", "Zapatillas Adidas Originals verdes y negras de cuero", 121000, "thumbnail not available", 34)
-// // console.log(producto3.getProductById(132))
-
-/*
- */
+const { privateDecrypt } = require('crypto')
+const fs = require('fs')
+//import fs from 'fs'
 
 class ProductManager {
-    static lastCode = 0;
-    static products = []
+    static contentParse = []
     constructor() {
+        this.products = ProductManager.products
+        this.path = ProductManager.getData()
     }
 
-
-
-    getProducts() {
-        return ProductManager.products;
-    }
-
-    addProduct(title, description, code, price, thumbnail, stock) {
-        let newProd
-
-        if (ProductManager.products.length > 0) {
-            ProductManager.products.forEach(element => {
-                if (element.code == code) {
-                    console.error("The product already exists")
-                } else {
-                    newProd = { "title": title, "description": description, "price": price, "thumbnail": thumbnail, "code": code, "id": this.setIdCode(), "stock": stock }
-                    ProductManager.products = [...ProductManager.products, newProd];
-                    console.log("Product added succesfully")
-                }
-            })
+    static async getData() {
+        let res
+        if (fs.existsSync('productManager.json')) {
+            this.contentParse = await fs.promises.readFile('productManager.json', 'utf-8')
+            res = "Archivo cargado exitosamente"
+            console.log(res)
         } else {
-            newProd = { "title": title, "description": description, "price": price, "thumbnail": thumbnail, "code": code, "id": this.setIdCode(), "stock": stock }
-            ProductManager.products = [...ProductManager.products, newProd];
-            console.log("Product added succesfully")
+            await fs.promises.writeFile('productManager.json', "[]")
+            this.contentParse = await fs.promises.readFile('productManager.json', 'utf-8')
+            res = "Archivo creado exitosamente"
+            console.log(res)
+        }
+        return res
+    }
+    async getProducts() {
+        const content = await fs.promises.readFile('productManager.json', 'utf-8')
+        const contentParse = await JSON.parse(content)
+        //console.log(ProductManager.contentParse)
+        return contentParse;
+    }
+
+    async addProduct(title, description, code, price, thumbnail, stock) {
+
+        const content = await fs.promises.readFile('productManager.json', 'utf-8')
+        const contentParse = JSON.parse(content)
+        const ProductExists = contentParse.some((product) => product.code === code);
+        let highestId = contentParse.length > 0 ? Math.max(...contentParse.map(item => item.id)) : 0
+        const newProd = { id: ++highestId, title: title, description: description, code: code, price: price, thumbnail: thumbnail, stock: stock }
+        let res = "Ya existe un producto con el codigo: " + code
+
+        if (!ProductExists) {
+
+            contentParse.push(newProd)
+            const finalContent = JSON.stringify(contentParse, null, 2)
+            fs.promises.writeFile('productManager.json', finalContent)
+            
+            res = "Producto agregado correctamente"
 
         }
+
+        console.log(res)
     }
 
-    getProductById(id) {
-        let productFound = "Not Found"
-        ProductManager.products.forEach(element => {
-            if (element.code == id) {
+    async getProductById(id) {
+        const content = await fs.promises.readFile('productManager.json', 'utf-8')
+        const contentParse = JSON.parse(content)
+        let productFound = "Id Product Not Found"
+
+        contentParse.forEach(element => {
+            if (element.id == id) {
                 productFound = element
             }
         });
+
         return productFound
     }
 
-    setIdCode() {
-        let newCode = ++ProductManager.lastCode;
-        return newCode;
+    async getProductByCode(code) {
+        const content = await fs.promises.readFile('productManager.json', 'utf-8')
+        const contentParse = JSON.parse(content)
+        let productFound = "Code Product Not Found"
+
+        contentParse.forEach(element => {
+            if (element.code == code) {
+                productFound = element
+            }
+        });
+
+        return productFound
+    }
+
+
+    async deleteProductById(id) {
+        const content = await fs.promises.readFile('productManager.json', 'utf-8')
+        const contentParse = JSON.parse(content)
+        const ProductExists = contentParse.some((product) => product.id === id);
+        let res = "Product ID Not Found"
+
+        if (ProductExists) {
+            const newProducts = contentParse.filter((product) => product.id !== id);
+            await fs.promises.writeFile('productManager.json', JSON.stringify(newProducts, null, 2));
+            res = "producto eliminado"
+        }
+
+        console.log(res)
+        return res
+    }
+
+    async updateProduct(id, updatedProductData) {
+        let res = "Product ID Not Found"
+        if (updatedProductData.id) {
+            res = "Product ID can't be changed"
+            console.log(res)
+            return res
+        } else {
+            const content = await fs.promises.readFile('productManager.json', 'utf-8');
+            const contentParse = JSON.parse(content);
+
+            const productIndex = contentParse.findIndex((product) => product.id === id);
+            if (productIndex == -1) {
+                console.error(res);
+                return res;
+            }
+
+            const updatedProduct = {
+                ...contentParse[productIndex],
+                ...updatedProductData,
+            };
+
+            contentParse[productIndex] = updatedProduct;
+
+            await fs.promises.writeFile('productManager.json', JSON.stringify(contentParse, null, 2));
+            res = "Product successfully updated"
+            console.log(res);
+            return res
+        }
+    }
+
+    deleteDataStorage() {
+        fs.unlinkSync('productManager.json')
+        console.log("File succesfully deleted")
     }
 }
 
 
-let productManager = new ProductManager()
-console.log(productManager.getProducts())
-
-productManager.addProduct("producto prueba", "Este es un producto prueba", "ABC123", 200, "sin imagen", 25)
-// console.log(productManager.getProducts())
-console.log("")
-
-productManager.addProduct("producto prueba", "Este es un producto prueba", "ABC123", 200, "sin imagen", 25)
-// console.log(productManager.getProducts())
-console.log("")
-
-productManager.addProduct("producto prueba2", "Este es un producto prueba2", "ABC1232", 200, "sin imagen", 25)
-console.log(productManager.getProducts())
-console.log("")
-console.log("")
-console.log("producto:")
 
 
-console.log(productManager.getProductById("ABC32"))
+///////////////////////////////////////////////
+async function storageAsync() {
+    const productManager = new ProductManager()
+    console.log("///////////Agrego un producto////////////////")
+    await productManager.addProduct("Jugo de Naranja", "Drinks", "01HF2XA41R8MNY61P2XG46QA2Y", 297.16, "http://dummyimage.com/125x100.png/dddddd/000000", 762)
+    console.log("///////////Agrego un producto ya existente////////////////")
+    await productManager.addProduct("Agua Mineral", "Drinks", "01HF2XA41R8MNY61P2XV46KA2Y", 197.16, "http://dummyimage.com/125x100.png/dddddd/000000", 76278)
+    console.log("/////////////Obtengo el listado de productos//////////////")
+    console.log(await productManager.getProducts())
+    console.log("/////////////Borro Producto por ID//////////////")
+    await productManager.deleteProductById(2)
+    console.log("//////////////Obtengo un producto por su ID/////////////")
+    console.log(await productManager.getProductById(1))
+    console.log("//////////////Obtengo un producto por su Codigo/////////////")
+    console.log(await productManager.getProductByCode("01HF2XA41R8MNY61P2XV46KA2Y"))
+    console.log("/////////////edito Producto por ID//////////////")
+    await productManager.updateProduct(2, { title: "Nuevo nombre", description: "Nueva descripcion" })//{id:3, title: "Nuevo nombre", description: "Nueva descripcion"})
+    console.log("////////////Obtengo nuevo listado modificado///////////////")
+    console.log(await productManager.getProducts())
+    console.log("//////////////Elimino el archivo/////////////")
+    productManager.deleteDataStorage()
+}
+
+storageAsync()
+
+
